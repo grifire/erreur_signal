@@ -1,6 +1,6 @@
 import soundfile as sf
 import numpy as np
-
+# drive glotin init recherche
 data, Fe = sf.read("/scratch/yroblin156/donnee_glotin/d1/meute/ONECAT_20200114_150201_247.wav")
 
 
