@@ -68,6 +68,7 @@ for k in range(0,len(data1)) :
         tmp += 1
     pre = data1[k][4]
 
+newdata1 = newdata1[1:-1]
 
 # M1 = list(filter(lambda x: x != 0, M1))
 # print(M1)
@@ -77,19 +78,46 @@ for k in range(0,len(data1)) :
 print()
 print()
 print()
-moyenne_len = 0
-temps = 0
-plt.title("Nombre d'échantillons pas seconde")
-for m in newdata1 :
-    print(len(m))
-    plt.plot(temps,len(m), marker='.')
-    temps+=1
-    moyenne_len += len(m)
-plt.show()
-moyenne_len = moyenne_len / len(newdata1)
+# moyenne_len = 0
+# temps = 0
+# plt.title("Nombre d'échantillons pas seconde")
+# for m in newdata1 :
+#     print(len(m))
+#     plt.plot(temps,len(m), marker='.')
+#     temps+=1
+#     moyenne_len += len(m)
+# plt.show()
+# moyenne_len = moyenne_len / len(newdata1)
 
-print("Fréquence Fe : ",Fe1, Fe2)
-print("moyenne fréquence réelle : ",moyenne_len)
+# print("Fréquence Fe : ",Fe1, Fe2)
+# print("moyenne fréquence réelle : ",moyenne_len)
+
+len_max = 365596
+# for m in newdata1 :
+#     if len(m) > len_max :
+#         len_max = len(m)
+
+resamp_data1 = []
+print("max = ",len_max)
+for m in newdata1 :
+    resamp_data1.append(sp.signal.resample(m, int(len_max)))
+
+# print(resamp_data1[0])
+print("len = ",len(resamp_data1))
+data1_final = np.concatenate(resamp_data1, axis=0)
+
+print("len final = ",len(data1_final))
+print(data1_final[0])
+exit(0)
+peaks = []
+props = []
+for i in range(4) :
+    peak, prop = sp.signal.find_peaks(resamp_data1[0][:,i], height=0.05,distance=Fe1//100)
+    print("Piste ",i,": ", peak)
+    peaks.append(peak)
+    props.append(prop)
+
+# sp.signal.correlate(data1[i1:i1+ntmp,4], data1[i1:i1+ntmp,4])
 exit(0)
 ntmp = Fe1
 print()
