@@ -4,8 +4,10 @@ import numpy as np
 import scipy as sp
 from matplotlib import pyplot as plt
 # drive glotin init recherche
-data1, Fe1 = sf.read("glotin init recherche/ONECAT_20200114_150201_247.wav")
-data2, Fe2 = sf.read("glotin init recherche/S70_20200114_150211_982.wav")
+# data1, Fe1 = sf.read("glotin init recherche/ONECAT_20200114_150201_247.wav")
+# data2, Fe2 = sf.read("glotin init recherche/S70_20200114_150211_982.wav")
+data1, Fe1 = sf.read("/scratch/yroblin156/donnee_glotin/d1/filtre/ONECAT_20200114_150201_247.wav")
+data2, Fe2 = sf.read("/scratch/yroblin156/donnee_glotin/d1/meute/S70_20200114_150211_982.wav")
 
 
 print(data1[0][4]) #temps = 0, piste = 4
@@ -108,18 +110,44 @@ data1_final = np.concatenate(resamp_data1, axis=0)
 
 print("len final = ",len(data1_final))
 print(data1_final[0])
-exit(0)
-peaks = []
-props = []
-for i in range(4) :
-    peak, prop = sp.signal.find_peaks(resamp_data1[0][:,i], height=0.05,distance=Fe1//100)
-    print("Piste ",i,": ", peak)
-    peaks.append(peak)
-    props.append(prop)
+#exit(0)
 
-# sp.signal.correlate(data1[i1:i1+ntmp,4], data1[i1:i1+ntmp,4])
+# Calcule d'énergie pour trouver les peaks de la piste 0
+ntmp = Fe1//1000
+window = ntmp*5
+peaks = []
+for i in range(0,len(data1_final),ntmp) :
+    
+    # print("Piste ",i,": ", peak)
+    peaks += [sum(data1_final[i:i+window,0]**2)]
+
+peaks = np.array(peaks)
+print(len(peaks))
+# Recherge des 1000 plus gros peaks
+idx0 = np.argsort(peaks)[-1000:]
+print("1000 plus gros peaks : ", peaks[idx0])
+print("index 1000 plus gros peaks : ", idx0)
+
+# Recherche des peaks correspondant dans les autres pistes
+marge = ntmp * 20
+idx1 = []
+for i in idx0 :
+    max_piste1 = 0
+    id_max_p1 = 0
+    max_piste2 = 0
+    id_max_p2 = 0
+    max_piste3 = 0
+    id_max_p3 = 0
+    for j in (-marge,marge,ntmp) :
+        print(sp.signal.correlate(data1_final[i:i+window,0],data1_final[i+marge:i+marge+window,1]))
+        if max_piste1 < sp.signal.correlate(data1_final[i:i+window,0],data1_final[i+marge:i+marge+window,1]) :
+            id_max_p1 = i+j
+    idx1 += [id_max_p1]
+
+print(idx1)
+print("taille de idx1 : ",len(idx1))
 exit(0)
-ntmp = Fe1
+
 print()
 for k in range(0,len(data1), ntmp//10) :
     if k + ntmp > len(data1) :
